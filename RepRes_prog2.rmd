@@ -71,12 +71,14 @@ StormData<- StormData[complete.cases(StormData[,c("EVTYPE","FATALITIES","INJURIE
 This is how EVTYPE looks now:
  
 ```{r List, results = 'asis', cache = TRUE}
+options(xtable.type = 'html')
 List <- unique(StormData$EVTYPE)
 xtable(head(as.data.frame(List)))
 ```
   
   
 To remove the invalid categories I have used the funcion grep. In the next chunk of code I have included all the replacement made. I have followed this order:  
+  
   
 1. Check all the categories using the same words as I didn´t expect any mistakes on the database. During this process all the blanks have been removed and the words merged together to make easier next steps.  
   
@@ -292,6 +294,7 @@ StormData[ StormData$EVTYPE == "?" , "EVTYPE"] <- c("Uncategorized")
 Now EVTYPE looks like that:
   
 ```{r ListEnd, results = 'asis', cache = TRUE}
+options(xtable.type = 'html')
 List <- unique(StormData$EVTYPE)
 xtable((as.data.frame(List)))
 ```
@@ -350,6 +353,7 @@ Now we only have the expected exponents:
 
   
 ```{r ListExponents, results = 'asis', cache = TRUE}
+options(xtable.type = 'html')
 List <- bind_cols(unique(as.data.frame(StormData$PROPDMGEXP)), unique(as.data.frame(StormData$CROPDMGEXP)))
 names(List) <- c("PROPDMGEXP", "CROPDMGEXP")
 xtable((as.data.frame(List)))

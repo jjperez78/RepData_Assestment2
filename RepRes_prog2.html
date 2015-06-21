@@ -343,10 +343,68 @@ TORNADO
 <div id="normalizing-the-event-type-evtype" class="section level2">
 <h2>1.1. Normalizing the Event Type (EVTYPE)</h2>
 <p>This is how EVTYPE looks now:</p>
-<pre class="r"><code>List &lt;- unique(StormData$EVTYPE)
+<pre class="r"><code>options(xtable.type = 'html')
+List &lt;- unique(StormData$EVTYPE)
 xtable(head(as.data.frame(List)))</code></pre>
-% latex table generated in R 3.1.3 by xtable 1.7-4 package % Sun Jun 21 21:01:10 2015
-
+<!-- html table generated in R 3.1.3 by xtable 1.7-4 package -->
+<!-- Sun Jun 21 22:26:45 2015 -->
+<table border="1">
+<tr>
+<th>
+</th>
+<th>
+List
+</th>
+</tr>
+<tr>
+<td align="right">
+1
+</td>
+<td>
+TORNADO
+</td>
+</tr>
+<tr>
+<td align="right">
+2
+</td>
+<td>
+TSTM WIND
+</td>
+</tr>
+<tr>
+<td align="right">
+3
+</td>
+<td>
+HAIL
+</td>
+</tr>
+<tr>
+<td align="right">
+4
+</td>
+<td>
+FREEZING RAIN
+</td>
+</tr>
+<tr>
+<td align="right">
+5
+</td>
+<td>
+SNOW
+</td>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td>
+ICE STORM/FLASH FLOOD
+</td>
+</tr>
+</table>
 <p>To remove the invalid categories I have used the funcion grep. In the next chunk of code I have included all the replacement made. I have followed this order:</p>
 <ol style="list-style-type: decimal">
 <li>Check all the categories using the same words as I didn´t expect any mistakes on the database. During this process all the blanks have been removed and the words merged together to make easier next steps.</li>
@@ -541,10 +599,372 @@ StormData[ (grep( pattern = &quot;EXCESSIVE&quot; , x = StormData$EVTYPE, ignore
 StormData &lt;- StormData[!is.na(StormData[,&quot;EVTYPE&quot;]) , ]
 StormData[ StormData$EVTYPE == &quot;?&quot; , &quot;EVTYPE&quot;] &lt;- c(&quot;Uncategorized&quot;)</code></pre>
 <p>Now EVTYPE looks like that:</p>
-<pre class="r"><code>List &lt;- unique(StormData$EVTYPE)
+<pre class="r"><code>options(xtable.type = 'html')
+List &lt;- unique(StormData$EVTYPE)
 xtable((as.data.frame(List)))</code></pre>
-% latex table generated in R 3.1.3 by xtable 1.7-4 package % Sun Jun 21 21:31:00 2015
-
+<!-- html table generated in R 3.1.3 by xtable 1.7-4 package -->
+<!-- Sun Jun 21 22:26:46 2015 -->
+<table border="1">
+<tr>
+<th>
+</th>
+<th>
+List
+</th>
+</tr>
+<tr>
+<td align="right">
+1
+</td>
+<td>
+Tornado
+</td>
+</tr>
+<tr>
+<td align="right">
+2
+</td>
+<td>
+HighWind
+</td>
+</tr>
+<tr>
+<td align="right">
+3
+</td>
+<td>
+Hail
+</td>
+</tr>
+<tr>
+<td align="right">
+4
+</td>
+<td>
+Sleet
+</td>
+</tr>
+<tr>
+<td align="right">
+5
+</td>
+<td>
+HeavySnow
+</td>
+</tr>
+<tr>
+<td align="right">
+6
+</td>
+<td>
+VolcanicAsh
+</td>
+</tr>
+<tr>
+<td align="right">
+7
+</td>
+<td>
+WinterStorm
+</td>
+</tr>
+<tr>
+<td align="right">
+8
+</td>
+<td>
+HurricaneTyphoon
+</td>
+</tr>
+<tr>
+<td align="right">
+9
+</td>
+<td>
+HeavyRain
+</td>
+</tr>
+<tr>
+<td align="right">
+10
+</td>
+<td>
+Lightning
+</td>
+</tr>
+<tr>
+<td align="right">
+11
+</td>
+<td>
+DenseFog
+</td>
+</tr>
+<tr>
+<td align="right">
+12
+</td>
+<td>
+RipCurrent
+</td>
+</tr>
+<tr>
+<td align="right">
+13
+</td>
+<td>
+FunnelCloud
+</td>
+</tr>
+<tr>
+<td align="right">
+14
+</td>
+<td>
+Heat
+</td>
+</tr>
+<tr>
+<td align="right">
+15
+</td>
+<td>
+Flood
+</td>
+</tr>
+<tr>
+<td align="right">
+16
+</td>
+<td>
+Waterspout
+</td>
+</tr>
+<tr>
+<td align="right">
+17
+</td>
+<td>
+Blizzard
+</td>
+</tr>
+<tr>
+<td align="right">
+18
+</td>
+<td>
+FrostFreeze
+</td>
+</tr>
+<tr>
+<td align="right">
+19
+</td>
+<td>
+AstronomicalLowTide
+</td>
+</tr>
+<tr>
+<td align="right">
+20
+</td>
+<td>
+ExcessiveHeat
+</td>
+</tr>
+<tr>
+<td align="right">
+21
+</td>
+<td>
+IceStorm
+</td>
+</tr>
+<tr>
+<td align="right">
+22
+</td>
+<td>
+Avalanche
+</td>
+</tr>
+<tr>
+<td align="right">
+23
+</td>
+<td>
+DustStorm
+</td>
+</tr>
+<tr>
+<td align="right">
+24
+</td>
+<td>
+Uncategorized
+</td>
+</tr>
+<tr>
+<td align="right">
+25
+</td>
+<td>
+HighSurf
+</td>
+</tr>
+<tr>
+<td align="right">
+26
+</td>
+<td>
+Wildfire
+</td>
+</tr>
+<tr>
+<td align="right">
+27
+</td>
+<td>
+DebrisFlow
+</td>
+</tr>
+<tr>
+<td align="right">
+28
+</td>
+<td>
+Drought
+</td>
+</tr>
+<tr>
+<td align="right">
+29
+</td>
+<td>
+StrongWing
+</td>
+</tr>
+<tr>
+<td align="right">
+30
+</td>
+<td>
+ThunderstormWind
+</td>
+</tr>
+<tr>
+<td align="right">
+31
+</td>
+<td>
+LakeEffectSnow
+</td>
+</tr>
+<tr>
+<td align="right">
+32
+</td>
+<td>
+TropicalDepression
+</td>
+</tr>
+<tr>
+<td align="right">
+33
+</td>
+<td>
+WinterWeather
+</td>
+</tr>
+<tr>
+<td align="right">
+34
+</td>
+<td>
+StrongSurgeTide
+</td>
+</tr>
+<tr>
+<td align="right">
+35
+</td>
+<td>
+TropicalStorm
+</td>
+</tr>
+<tr>
+<td align="right">
+36
+</td>
+<td>
+FlashFlood
+</td>
+</tr>
+<tr>
+<td align="right">
+37
+</td>
+<td>
+CoastalFlood
+</td>
+</tr>
+<tr>
+<td align="right">
+38
+</td>
+<td>
+StormSurgeTide
+</td>
+</tr>
+<tr>
+<td align="right">
+39
+</td>
+<td>
+Whirlwind
+</td>
+</tr>
+<tr>
+<td align="right">
+40
+</td>
+<td>
+FreezingFog
+</td>
+</tr>
+<tr>
+<td align="right">
+41
+</td>
+<td>
+Seiche
+</td>
+</tr>
+<tr>
+<td align="right">
+42
+</td>
+<td>
+RipCurl
+</td>
+</tr>
+<tr>
+<td align="right">
+43
+</td>
+<td>
+DenseSmoke
+</td>
+</tr>
+<tr>
+<td align="right">
+44
+</td>
+<td>
+Tsunami
+</td>
+</tr>
+</table>
 </div>
 <div id="normalizing-the-exponents-propdmgexp-and-cropdmgexp" class="section level2">
 <h2>1.2. Normalizing the Exponents (PROPDMGEXP and CROPDMGEXP)</h2>
@@ -580,11 +1000,79 @@ StormData[is.na( StormData$PROPDMGEXP) , &quot;PROPDMGEXP&quot;] &lt;- 0
 StormData[is.na( StormData$CROPDMG) , &quot;CROPDMG&quot;] &lt;- 0
 StormData[is.na( StormData$CROPDMGEXP) , &quot;CROPDMGEXP&quot;] &lt;- 0</code></pre>
 <p>Now we only have the expected exponents:</p>
-<pre class="r"><code>List &lt;- bind_cols(unique(as.data.frame(StormData$PROPDMGEXP)), unique(as.data.frame(StormData$CROPDMGEXP)))
+<pre class="r"><code>options(xtable.type = 'html')
+List &lt;- bind_cols(unique(as.data.frame(StormData$PROPDMGEXP)), unique(as.data.frame(StormData$CROPDMGEXP)))
 names(List) &lt;- c(&quot;PROPDMGEXP&quot;, &quot;CROPDMGEXP&quot;)
 xtable((as.data.frame(List)))</code></pre>
-% latex table generated in R 3.1.3 by xtable 1.7-4 package % Sun Jun 21 21:31:06 2015
-
+<!-- html table generated in R 3.1.3 by xtable 1.7-4 package -->
+<!-- Sun Jun 21 22:26:52 2015 -->
+<table border="1">
+<tr>
+<th>
+</th>
+<th>
+PROPDMGEXP
+</th>
+<th>
+CROPDMGEXP
+</th>
+</tr>
+<tr>
+<td align="right">
+1
+</td>
+<td align="right">
+1000.00
+</td>
+<td align="right">
+0.00
+</td>
+</tr>
+<tr>
+<td align="right">
+2
+</td>
+<td align="right">
+1000000.00
+</td>
+<td align="right">
+1000000.00
+</td>
+</tr>
+<tr>
+<td align="right">
+3
+</td>
+<td align="right">
+0.00
+</td>
+<td align="right">
+1000.00
+</td>
+</tr>
+<tr>
+<td align="right">
+4
+</td>
+<td align="right">
+1000000000.00
+</td>
+<td align="right">
+1000000000.00
+</td>
+</tr>
+<tr>
+<td align="right">
+5
+</td>
+<td align="right">
+1.00
+</td>
+<td align="right">
+1.00
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div id="analysis" class="section level1">
