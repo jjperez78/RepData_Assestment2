@@ -1,0 +1,7 @@
+base
+lubridate
+RColorBrewer
+lattice
+xtable
+knitr
+dplyr

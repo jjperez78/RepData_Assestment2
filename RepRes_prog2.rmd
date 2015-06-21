@@ -296,6 +296,7 @@ Now EVTYPE looks like that:
 ```{r ListEnd, results = 'asis', cache = TRUE}
 options(xtable.type = 'html')
 List <- unique(StormData$EVTYPE)
+List <- matrix(List, ncol = 4)
 xtable((as.data.frame(List)))
 ```
   

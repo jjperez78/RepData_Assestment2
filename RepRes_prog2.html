@@ -601,15 +601,25 @@ StormData[ StormData$EVTYPE == &quot;?&quot; , &quot;EVTYPE&quot;] &lt;- c(&quot
 <p>Now EVTYPE looks like that:</p>
 <pre class="r"><code>options(xtable.type = 'html')
 List &lt;- unique(StormData$EVTYPE)
+List &lt;- matrix(List, ncol = 4)
 xtable((as.data.frame(List)))</code></pre>
 <!-- html table generated in R 3.1.3 by xtable 1.7-4 package -->
-<!-- Sun Jun 21 22:26:46 2015 -->
+<!-- Sun Jun 21 22:34:02 2015 -->
 <table border="1">
 <tr>
 <th>
 </th>
 <th>
-List
+V1
+</th>
+<th>
+V2
+</th>
+<th>
+V3
+</th>
+<th>
+V4
 </th>
 </tr>
 <tr>
@@ -619,6 +629,15 @@ List
 <td>
 Tornado
 </td>
+<td>
+RipCurrent
+</td>
+<td>
+DustStorm
+</td>
+<td>
+StrongSurgeTide
+</td>
 </tr>
 <tr>
 <td align="right">
@@ -626,6 +645,15 @@ Tornado
 </td>
 <td>
 HighWind
+</td>
+<td>
+FunnelCloud
+</td>
+<td>
+Uncategorized
+</td>
+<td>
+TropicalStorm
 </td>
 </tr>
 <tr>
@@ -635,6 +663,15 @@ HighWind
 <td>
 Hail
 </td>
+<td>
+Heat
+</td>
+<td>
+HighSurf
+</td>
+<td>
+FlashFlood
+</td>
 </tr>
 <tr>
 <td align="right">
@@ -642,6 +679,15 @@ Hail
 </td>
 <td>
 Sleet
+</td>
+<td>
+Flood
+</td>
+<td>
+Wildfire
+</td>
+<td>
+CoastalFlood
 </td>
 </tr>
 <tr>
@@ -651,6 +697,15 @@ Sleet
 <td>
 HeavySnow
 </td>
+<td>
+Waterspout
+</td>
+<td>
+DebrisFlow
+</td>
+<td>
+StormSurgeTide
+</td>
 </tr>
 <tr>
 <td align="right">
@@ -658,6 +713,15 @@ HeavySnow
 </td>
 <td>
 VolcanicAsh
+</td>
+<td>
+Blizzard
+</td>
+<td>
+Drought
+</td>
+<td>
+Whirlwind
 </td>
 </tr>
 <tr>
@@ -667,6 +731,15 @@ VolcanicAsh
 <td>
 WinterStorm
 </td>
+<td>
+FrostFreeze
+</td>
+<td>
+StrongWing
+</td>
+<td>
+FreezingFog
+</td>
 </tr>
 <tr>
 <td align="right">
@@ -674,6 +747,15 @@ WinterStorm
 </td>
 <td>
 HurricaneTyphoon
+</td>
+<td>
+AstronomicalLowTide
+</td>
+<td>
+ThunderstormWind
+</td>
+<td>
+Seiche
 </td>
 </tr>
 <tr>
@@ -683,6 +765,15 @@ HurricaneTyphoon
 <td>
 HeavyRain
 </td>
+<td>
+ExcessiveHeat
+</td>
+<td>
+LakeEffectSnow
+</td>
+<td>
+RipCurl
+</td>
 </tr>
 <tr>
 <td align="right">
@@ -690,6 +781,15 @@ HeavyRain
 </td>
 <td>
 Lightning
+</td>
+<td>
+IceStorm
+</td>
+<td>
+TropicalDepression
+</td>
+<td>
+DenseSmoke
 </td>
 </tr>
 <tr>
@@ -699,266 +799,11 @@ Lightning
 <td>
 DenseFog
 </td>
-</tr>
-<tr>
-<td align="right">
-12
-</td>
-<td>
-RipCurrent
-</td>
-</tr>
-<tr>
-<td align="right">
-13
-</td>
-<td>
-FunnelCloud
-</td>
-</tr>
-<tr>
-<td align="right">
-14
-</td>
-<td>
-Heat
-</td>
-</tr>
-<tr>
-<td align="right">
-15
-</td>
-<td>
-Flood
-</td>
-</tr>
-<tr>
-<td align="right">
-16
-</td>
-<td>
-Waterspout
-</td>
-</tr>
-<tr>
-<td align="right">
-17
-</td>
-<td>
-Blizzard
-</td>
-</tr>
-<tr>
-<td align="right">
-18
-</td>
-<td>
-FrostFreeze
-</td>
-</tr>
-<tr>
-<td align="right">
-19
-</td>
-<td>
-AstronomicalLowTide
-</td>
-</tr>
-<tr>
-<td align="right">
-20
-</td>
-<td>
-ExcessiveHeat
-</td>
-</tr>
-<tr>
-<td align="right">
-21
-</td>
-<td>
-IceStorm
-</td>
-</tr>
-<tr>
-<td align="right">
-22
-</td>
 <td>
 Avalanche
 </td>
-</tr>
-<tr>
-<td align="right">
-23
-</td>
-<td>
-DustStorm
-</td>
-</tr>
-<tr>
-<td align="right">
-24
-</td>
-<td>
-Uncategorized
-</td>
-</tr>
-<tr>
-<td align="right">
-25
-</td>
-<td>
-HighSurf
-</td>
-</tr>
-<tr>
-<td align="right">
-26
-</td>
-<td>
-Wildfire
-</td>
-</tr>
-<tr>
-<td align="right">
-27
-</td>
-<td>
-DebrisFlow
-</td>
-</tr>
-<tr>
-<td align="right">
-28
-</td>
-<td>
-Drought
-</td>
-</tr>
-<tr>
-<td align="right">
-29
-</td>
-<td>
-StrongWing
-</td>
-</tr>
-<tr>
-<td align="right">
-30
-</td>
-<td>
-ThunderstormWind
-</td>
-</tr>
-<tr>
-<td align="right">
-31
-</td>
-<td>
-LakeEffectSnow
-</td>
-</tr>
-<tr>
-<td align="right">
-32
-</td>
-<td>
-TropicalDepression
-</td>
-</tr>
-<tr>
-<td align="right">
-33
-</td>
 <td>
 WinterWeather
-</td>
-</tr>
-<tr>
-<td align="right">
-34
-</td>
-<td>
-StrongSurgeTide
-</td>
-</tr>
-<tr>
-<td align="right">
-35
-</td>
-<td>
-TropicalStorm
-</td>
-</tr>
-<tr>
-<td align="right">
-36
-</td>
-<td>
-FlashFlood
-</td>
-</tr>
-<tr>
-<td align="right">
-37
-</td>
-<td>
-CoastalFlood
-</td>
-</tr>
-<tr>
-<td align="right">
-38
-</td>
-<td>
-StormSurgeTide
-</td>
-</tr>
-<tr>
-<td align="right">
-39
-</td>
-<td>
-Whirlwind
-</td>
-</tr>
-<tr>
-<td align="right">
-40
-</td>
-<td>
-FreezingFog
-</td>
-</tr>
-<tr>
-<td align="right">
-41
-</td>
-<td>
-Seiche
-</td>
-</tr>
-<tr>
-<td align="right">
-42
-</td>
-<td>
-RipCurl
-</td>
-</tr>
-<tr>
-<td align="right">
-43
-</td>
-<td>
-DenseSmoke
-</td>
-</tr>
-<tr>
-<td align="right">
-44
 </td>
 <td>
 Tsunami
