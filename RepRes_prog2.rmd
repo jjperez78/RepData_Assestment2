@@ -528,7 +528,7 @@ StormData_EcoGraphCrop <- arrange( summarise( group_by( StormData_EcoGraphCrop, 
 # Now we plot the last two graphs in a combined panel.
 
 linch <-  max(strwidth(StormData_EcoGraphProp$EVTYPE, "inch")+0.4, na.rm = TRUE)
-par(mfrow=c(2,1), mai=c(1.02,linch,0.82,0.42))
+par(mfrow=c(2,1), mai=c(1.02,linch+0.4,0.82,0.42), pin = c(4,2), cex = 0.65)
 barplot(height = StormData_EcoGraphProp$Properties, names.arg = StormData_EcoGraphProp$EVTYPE , horiz=TRUE, main = "Total loss in properties due to Atmospheric Events", xlab = "Loss in Billions of dollars", col=rainbow(12), las=1)
 barplot(height = StormData_EcoGraphCrop$Crop, names.arg = StormData_EcoGraphCrop$EVTYPE , horiz=TRUE, main = "Total loss in crops due to Atmospheric Events", xlab = "Loss in Billions of dollars", col=rainbow(14), las=1)
 ```
