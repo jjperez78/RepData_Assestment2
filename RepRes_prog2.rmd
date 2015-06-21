@@ -1,32 +1,86 @@
+---
+title: "RepRes_prog2"
+author: "jjperez"
+date: "Monday, June 15, 2015"
+output: html_document
+---
+Title:
+
+Tornados and Floods the most dangerous atmospheric events for the people and the economy  
+===
+  
+# 0. Sinopsis  
+  
+Along this report a set of data from U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database has been analized. The objective of this analysis was determinate which atmosferic event, between the 48 categories admited on the batabase, was the most dangerous in terms of diseases and billions of dollar. The values for the categories was not normalized into the data base so before begin the analysis it was necessary to process and normalize this data. The same problem appeared on the columns for the exponent when analizing the economical impact of every event.  
+  
+The results of this analysis shows the worst event in term os diseases are the **Tornados**, with more than 90000 casualities. In the hand **Flood** was the most dangerous event in general terms (total loss) as well as terms of value for damaged properties. **Drought** appears as the most dangerous event in terms of damaged crop value loss.  
+  
+  
+# 1. Data Processing  
+  
+Pior downloading the data, and working with it, it is neccesary to load the following packages into R:  
+  
+```{r loadlibrary, results='hide'}
 library(lubridate, quietly = TRUE)
 library(RColorBrewer, quietly = TRUE)
 library(lattice, quietly = TRUE)
 library(xtable, quietly = TRUE)
 library(knitr, quietly = TRUE)
 library(dplyr, quietly = TRUE)
-
-# First steps. Download and read the file with the data.
-#url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
-#download.file(url,"StormData.csv.bz2")
-
-# Load data and check how it looks like
-
+```
+  
+  
+The data for this report comes from the U.S. National Weather Service Storm Data Base. This database Data has been downloaded from a repository prepared for the "Reproducible Research Course" at Coursera. The following code has been used to download the file into the working directory.  
+  
+  
+```{r downloadfile, eval=FALSE}
+url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(url,"StormData.csv.bz2")
+```
+  
+  
+In the following links you can find some documentation of the database available:  
+  
+    - **[National Weather Service Storm Data Documentation]** (https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)  
+    
+    - **[National Climatic Data Center Storm Events FAQ]** (https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf)  
+  
+  
+Raw Data set is loaded a variable called **"StormData"**.
+  
+  
+```{r loadStormdata, results = 'asis', cache = TRUE}
+options(xtable.type = 'html')
 StormData <- read.csv("StormData.csv.bz2" , stringsAsFactors = FALSE)
-head(StormData)
-
-## NORMATIZE EVTYPE
-# Normalize the data in the approved cathegories from the 985 cases of EVTYPE to the 48 normalized ones
-
-# First we preselect just the columns we will use later to speed the process.
-
+xtable(head(StormData[,1:9]))
+```
+  
+  
+After looking into the data it has been necessary normalize the given data for the Event Type (EVTYPE) column. NOAA admits up to 48 normalized categories, however in the actual value data set there are up to 985 different cases. Also the exponents to calculte the value for damaged properties and crops has been introduced as character chains. It is neccesary to substitu these characters for their numeric values in order to calculate the total economical impact.  
+  
+Do to the size of the given data the first will be preselect just the necessary columns to carry on with the analysis.
+  
+  
+```{r preseltColumns, cache=TRUE}
 StormData<- StormData[complete.cases(StormData[,c("EVTYPE","FATALITIES","INJURIES", "PROPDMG","PROPDMGEXP","CROPDMG","CROPDMGEXP")]),c("EVTYPE","FATALITIES","INJURIES","PROPDMG","PROPDMGEXP","CROPDMG","CROPDMGEXP")]
-
-# This is how EVTYPE looks now
-
+```
+  
+  
+## 1.1. Normalizing the Event Type (EVTYPE)
+  
+This is how EVTYPE looks now:
+ 
+```{r List, results = 'asis', cache = TRUE}
 List <- unique(StormData$EVTYPE)
-str(List)
-
-# First we normalize the cathegories
+xtable(head(as.data.frame(List)))
+```
+  
+  
+To remove the invalid categories I have used the funcion grep. In the next chunk of code I have included all the replacement made. I have followed this order:  
+  
+1. Check all the categories using the same words as I didn´t expect any mistakes on the database. During this process all the blanks have been removed and the words merged together to make easier next steps.  
+  
+```{r checkcategories, cache = TRUE}
 
 StormData[ (grep( pattern = "Winter Weather" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("WinterWeather")
 StormData[ (grep( pattern = "Winter Storm" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("WinterStorm")
@@ -79,9 +133,13 @@ StormData[ (grep( pattern = "Blizzard" , x = StormData$EVTYPE, ignore.case = TRU
 StormData[ (grep( pattern = "Avalanche" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("Avalanche")
 StormData[ (grep( pattern = "Astronomical" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("AstronomicalLowTide")
 
-
-# Now we correct typos and other values easily assignable to each cathegory
-
+```
+  
+  
+In the next step I have focus on the categories with typos and words that can be considered similar to existing categories. Due to same categories are quite similar (WIND, STRONG WIND, HIGH WIND) it has been necessary to find the correct order for this serie of commands.  
+  
+  
+```{r checkextras, cache=TRUE}
 StormData[ (grep( pattern = "Snow" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("HeavySnow")
 StormData[ (grep( pattern = "Lighting" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("Lightning")
 StormData[ (grep( pattern = "Record Cold" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("ExtremeColdWindChill")
@@ -181,7 +239,7 @@ StormData[ (grep( pattern = "non-severe Wind Damage" , x = StormData$EVTYPE, ign
 StormData[ (grep( pattern = "Wind Damage" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("HeavyWind")
 StormData[ (grep( pattern = "WIND GUSTS" , x = StormData$EVTYPE, ignore.case = FALSE) ), "EVTYPE"] <- c("Blizzard")
 StormData[ (grep( pattern = "WIND" , x = StormData$EVTYPE, ignore.case = FALSE) ), "EVTYPE"] <- c("HighWind")
-StormData[ StormData[StormData$EVTYPE=="Wind", "EVTYPE"], "EVTYPE"] <- c("HighWind")
+#StormData[ StormData[StormData$EVTYPE=="Wind", "EVTYPE"], "EVTYPE"] <- c("HighWind")
 StormData[ (grep( pattern = "EROSION" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("CoastalFlood")
 StormData[ (grep( pattern = "WND" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("HighWind")
 StormData[ (grep( pattern = "SMOKE" , x = StormData$EVTYPE, ignore.case = FALSE) ), "EVTYPE"] <- c("DenseSmoke")
@@ -195,8 +253,13 @@ StormData[ (grep( pattern = "BEACH EROS(.*)" , x = StormData$EVTYPE, ignore.case
 StormData[ (grep( pattern = "TORNDAO" , x = StormData$EVTYPE, ignore.case = FALSE) ), "EVTYPE"] <- c("Tornado")
 StormData[ (grep( pattern = "(.*)Gustnado(.*)" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("ThunderstormWind")
 StormData[ (grep( pattern = "(.*)Glaze(.*)" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("LakeEffectSnow")
-
-# The rest of cathegories will be consither togheter as Uncategorized
+```
+  
+  
+And at last any other concepts that cannot be allocated in any of the previous categories have been assigned to a new categorie called "Uncategorized".  
+  
+  
+```{r checkuncategorized, cache=TRUE}
 
 StormData[ (grep( pattern = "Summary" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("Uncategorized")
 StormData[ (grep( pattern = "None" , x = StormData$EVTYPE, ignore.case = TRUE) ), "EVTYPE"] <- c("Uncategorized")
@@ -220,21 +283,32 @@ StormData[ (grep( pattern = "HEAVY MIX" , x = StormData$EVTYPE, ignore.case = FA
 StormData[ (grep( pattern = "VOG" , x = StormData$EVTYPE, ignore.case = FALSE) ), "EVTYPE"] <- c("Uncategorized")
 StormData[ (grep( pattern = "MILD PATTERN" , x = StormData$EVTYPE, ignore.case = FALSE) ), "EVTYPE"] <- c("Uncategorized")
 StormData[ (grep( pattern = "EXCESSIVE" , x = StormData$EVTYPE, ignore.case = FALSE) ), "EVTYPE"] <- c("Uncategorized")
-
-# Now we remove invalid data before we can remove the "?" mark
 StormData <- StormData[!is.na(StormData[,"EVTYPE"]) , ]
 StormData[ StormData$EVTYPE == "?" , "EVTYPE"] <- c("Uncategorized")
 
-# Now EVTYPE looks like that.
+```
+  
+  
+Now EVTYPE looks like that:
+  
+```{r ListEnd, results = 'asis', cache = TRUE}
 List <- unique(StormData$EVTYPE)
-str(List)
+xtable((as.data.frame(List)))
+```
+  
+  
+## 1.2. Normalizing the Exponents (PROPDMGEXP and CROPDMGEXP)
 
-## NORMALIZE EXPONENTS
-# On the next step I will normalize the exponents. I will subsitute the accepted exponents for its value. Any not accepted exponent
-# will be assiged to zero. This operation is necessary in order to change the class for this column from character to numeric.
-
+Once we have normalized the categories next step is normalize the exponents on the columns PROPDMEXP and CROPDMGEXP. According to the given codebook only three exponents are accepted:  
+1. K for thousands of dollars.  
+2. M for millions of dollars.  
+3. B for billions of dollars.  
+  
+To normalize this columns I have subsitute any character, in capitals or lower cases, for the numerical value (K = 10^-3, M = 10^6, B = 10^9). Also any numeric value between 0 and 9, as weel as the signs "+" and "" have been substituted for 1. Any other value has been considered not valid and assigned to zero. 
+  
+  
+```{r nomalizeExponents}
 ## PROPDMGEXP
-
 StormData[ (grep( pattern = "[Hh]" , x = StormData$PROPDMGEXP, ignore.case = TRUE) ), "PROPDMGEXP"] <- as.numeric(0)
 StormData[ StormData$PROPDMGEXP == "+", "PROPDMGEXP"] <- as.numeric(1)
 StormData[ StormData$PROPDMGEXP == "-", "PROPDMGEXP"] <- as.numeric(1)
@@ -243,15 +317,8 @@ StormData[ (grep( pattern = "[Kk]" , x = StormData$PROPDMGEXP, ignore.case = TRU
 StormData[ (grep( pattern = "[Mm]" , x = StormData$PROPDMGEXP, ignore.case = TRUE) ), "PROPDMGEXP"] <- as.numeric(10^6)
 StormData[ (grep( pattern = "[Bb]" , x = StormData$PROPDMGEXP, ignore.case = TRUE) ), "PROPDMGEXP"] <- as.numeric(10^9)
 StormData[ StormData$PROPDMGEXP == "?", "PROPDMGEXP"] <- as.numeric(0)
-StormData$PROPDMGEXP <- as.numeric(StormData$PROPDMGEXP)
-
 
 # CROPDMGEXP
-
-# List of exponents
-List<-unique(StormData$CROPDMGEXP)
-View(List)
-
 StormData[ (grep( pattern = "[Hh]" , x = StormData$CROPDMGEXP, ignore.case = TRUE) ), "CROPDMGEXP"] <- as.numeric(0)
 StormData[ StormData$CROPDMGEXP == "+", "CROPDMGEXP"] <- as.numeric(1)
 StormData[ StormData$CROPDMGEXP == "-", "CROPDMGEXP"] <- as.numeric(1)
@@ -260,6 +327,15 @@ StormData[ (grep( pattern = "[Kk]" , x = StormData$CROPDMGEXP, ignore.case = TRU
 StormData[ (grep( pattern = "[Mm]" , x = StormData$CROPDMGEXP, ignore.case = TRUE) ), "CROPDMGEXP"] <- as.numeric(10^6)
 StormData[ (grep( pattern = "[Bb]" , x = StormData$CROPDMGEXP, ignore.case = TRUE) ), "CROPDMGEXP"] <- as.numeric(10^9)
 StormData[ StormData$CROPDMGEXP == "?", "CROPDMGEXP"] <- as.numeric(0)
+```
+  
+  
+The next step is change the class for these columns from "character" to "numeric". After that any invalid value will appear on the column as NA. The last step will be assign these values to zero.  
+  
+  
+```{r changeClassExponents}
+# Change the class for each these columns to numeric
+StormData$PROPDMGEXP <- as.numeric(StormData$PROPDMGEXP)
 StormData$CROPDMGEXP <- as.numeric(StormData$CROPDMGEXP)
 
 # Before we calculate the impact I will replace every NA value for Zero
@@ -267,85 +343,106 @@ StormData[is.na( StormData$PROPDMG) , "PROPDMG"] <- 0
 StormData[is.na( StormData$PROPDMGEXP) , "PROPDMGEXP"] <- 0
 StormData[is.na( StormData$CROPDMG) , "CROPDMG"] <- 0
 StormData[is.na( StormData$CROPDMGEXP) , "CROPDMGEXP"] <- 0
+```
+  
+  
+Now we only have the expected exponents:  
 
-
-## ANALYSIS 
-
-## HUMAN COST
-# Preselection of columns of interest
-
-# Data for the heath impact analysis. We select only the complete cases for the variables Event Type, Injuries and Fatalities.
+  
+```{r ListExponents, results = 'asis', cache = TRUE}
+List <- bind_cols(unique(as.data.frame(StormData$PROPDMGEXP)), unique(as.data.frame(StormData$CROPDMGEXP)))
+names(List) <- c("PROPDMGEXP", "CROPDMGEXP")
+xtable((as.data.frame(List)))
+```
+  
+  
+  
+  
+# 2. Analysis  
+  
+  
+## 2.1. Human Cost
+  
+The first step will be select a subset of columns to use in our analysis. The subset will include: Event Type, Injuries and Fatalities.  
+  
+  
+```{r StormHealth}
 
 StormData_Health<- StormData[complete.cases(StormData[,c("EVTYPE","FATALITIES","INJURIES")]),c("EVTYPE","FATALITIES","INJURIES")]
 
-# The total efect of each Event Type will be the sum of the total fatalities and injuries caused by this. We arrange the resulting data
-# frame by the descending sum of these factors.
+```
+  
+  
+To calculate the Total Effect of each Event Type I have consider the total amount of fatalities and injuries caused by this. In this step I will group the data and sumirize the columns to calculate the total number of affected people by Event Type. I will sort descending the result using the calculated so I will have the highest value in the first row.  
+  
+  
+```{r StormHeathSum}
 
-StormData_Health <- arrange(summarise ( group_by( StormData_Health , EVTYPE ), SUM = sum( FATALITIES + INJURIES) ) , desc(SUM))
+StormData_HealthSUM <- arrange(summarise ( group_by( StormData_Health , EVTYPE ), SUM = sum( FATALITIES + INJURIES) ) , desc(SUM))
 
-# The worst event type, in terms of human heath, is the maximum value of this dataframe
+```
 
+
+The worst event type, in terms of human heath, is the maximum value of this dataframe:
+
+```{r HeathSUM worst}
 StormData_HealthSUM[ StormData_HealthSUM$SUM == max(StormData_HealthSUM$SUM) , ]
-
-# The result is:
-
 Evtype_Health <- as.character(StormData_HealthSUM[ StormData_HealthSUM$SUM == max(StormData_HealthSUM$SUM) , 1])
-Evtype_HealthValue <- round( as.numeric(StormData_HealthSUM[ StormData_HealthSUM$SUM == max(StormData_HealthSUM$SUM) , 2]) , 2)
+Evtype_HealthValue <- round( as.numeric(StormData_HealthSUM[ StormData_HealthSUM$SUM == max(StormData_HealthSUM$SUM)/1000 , 2]) , 2)
+```
 
-# Now we create a plot with
-# To reduce the categories I will merge all cathegories that represent less that 1% of the total deads.
-
+The worst event type is **`r Evtype_Health`** with a total of **`r Evtype_HealthValue`** thousands of diseases.
+  
+  
+The following plot represent the total diseases for the Events whith the highest numbers of them. To reduce the number of categories I have merged all the categories with loss below the 1% of the total into a new category called *"Others"*.  
+  
+  
+```{r graphHealth}
 StormData_HealthGraph <- StormData_HealthSUM
 StormData_HealthGraph[ StormData_HealthGraph$SUM < (sum(StormData_HealthGraph$SUM) * 0.01), "EVTYPE"] <- "Others"
 StormData_HealthGraph <- arrange( summarise( group_by( StormData_HealthGraph, EVTYPE), SUM = sum( SUM) ) , desc(SUM))
 
-# Generate graph
+# Autoadjust the margins
 linch <-  max(strwidth(StormData_HealthGraph$EVTYPE, "inch")+0.4, na.rm = TRUE)
 par(mai=c(1.02,linch,0.82,0.42))
 
 graph1 <- barplot(height = StormData_HealthGraph$SUM, names.arg = StormData_HealthGraph$EVTYPE ,horiz=TRUE, main = "Total Diseases by Atmospheric Event since 1950", xlab = "Recorded diseases since 1950", col=rainbow(12), las=1)
-print(graph1)
 
+```
+  
+  
 
-## ECONOMIC IMPACT
+## 2.2. Economic Impact
 
-# Will create a new dataframe to perform the analysis of the economic impact of every Event Type. I will define the total economical 
-# impact as the sum of PROPDMG and CROPDMG. Every one of this fields will be multiplied for the corresponding factor, calculated
-# using PROPDMG_EXP and CROPDMG_EXP.
+As we did before I we create a new subset of columns from the data frame StormData. 
 
+```{r StormEcon}
 StormData_Econ <- StormData[ complete.cases( StormData [ , c("EVTYPE","PROPDMG","PROPDMGEXP","CROPDMG","CROPDMGEXP") ] ), ]
-
-
-# We assign a value to every exponente. I expect a high value so I will work with Millions of dollars. So each exponente will be
-# assigned to the folling values: K = 10^-3, M = 1, B = 10^3 and the other characters will be zero. The final calculation will 
-# consider the value in dollars, when given, and the amount of properties damages. In case of two events have the same amount
-# of calculated impact in dollars, the one with the highest number of damaged properties will be choosen first.
-
-
-##if ( sum( StormData_Econ$PROPDMGEXP == "K") > 0) StormData_Econ[ StormData_Econ$PROPDMGEXP == "K" , "PROPDMGEXP" ] <- 1
-##if ( sum( StormData_Econ$PROPDMGEXP == "M") > 0) StormData_Econ[ StormData_Econ$PROPDMGEXP == "M" , "PROPDMGEXP" ] <- 10^3
-##if ( sum( StormData_Econ$PROPDMGEXP == "B") > 0) StormData_Econ[ StormData_Econ$PROPDMGEXP == "B" , "PROPDMGEXP" ] <- 10^6
-
-# First we create the factors columns
-
+```
+  
+  
+Next steps will be:  
+1. Add the columns for the factors and the partial calculations for each row:
+```{r AddingFactCol}
 StormData_Econ$PFAC <- StormData_Econ [ , "PROPDMGEXP"]
 StormData_Econ$CFAC <- StormData_Econ [ , "CROPDMGEXP"]
 StormData_Econ$Monetary <- 0
 StormData_Econ$Properies <- 0
+```
 
-# Now we adjust the values on the columns With the exponents and also for the Flags PFAC and CFAC
-# Start removing Unsassigned values.
-# PROPDMG
-
-# List of exponents
-List<-unique(StormData_Econ$PROPDMGEXP)
-View(List)
-
-# Calcute the economic impact for every group
+I have considered the Total Economical Impact, for each event, as the sum of PROPDMG and CROPDMG. Every of these fields will be multiplied for the corresponding factor.  
+  
+```{r EconCalculated}
 StormData_Econ$Monetary <- StormData_Econ$PROPDMG * StormData_Econ$PROPDMGEXP + StormData_Econ$CROPDMG * StormData_Econ$CROPDMGEXP
 StormData_Econ$PROPTotal <- StormData_Econ$PROPDMG * StormData_Econ$PROPDMGEXP
 StormData_Econ$CROPTotal <- StormData_Econ$CROPDMG * StormData_Econ$CROPDMGEXP
-
+```
+  
+  
+Before calculate the total amount for each event, to simplify our data frame I have select just the necessary columns. Due the obtained values the final impact will be given in Billions of dollars:  
+  
+  
+```{r NewEcon}
 # Our final data frame
 StormData_Econ <- StormData_Econ[ , c("EVTYPE","Monetary","PROPTotal","CROPTotal")]
 
@@ -354,39 +451,36 @@ StormData_Econ <- StormData_Econ[ , c("EVTYPE","Monetary","PROPTotal","CROPTotal
 
 StormData_EconSUM <- arrange(summarise ( group_by( StormData_Econ , EVTYPE ), Monetary = sum( Monetary) / 10^9, Properties = sum(PROPTotal)/10^9, Crop = sum(CROPTotal)/10^9 ) , desc(Monetary, Properties, Crop))
 
-# The worst event type, in terms of economical impact, is
-
-StormData_EconSUM[ StormData_EconSUM$Monetary == max(StormData_EconSUM$Monetary) , ]
-
-# The result is:
-
+```
+  
+  
+Now I can calculate the worst atmospheric event for each category: Total, Properties and Crops.
+  
+  
+```{r EcoFinal}
+# The worst is Total Loss:
 Evtype_Monetary <- as.character( StormData_EconSUM[ StormData_EconSUM$Monetary == max(StormData_EconSUM$Monetary) , "EVTYPE"] )
 Evtype_MonetaryValue <- round(as.numeric(StormData_EconSUM[ StormData_EconSUM$Monetary == max(StormData_EconSUM$Monetary) , "Monetary"]) , 2)
 
-# The worst event type, in terms of Damaged Properties, is
-
-StormData_EconSUM[ StormData_EconSUM$Properties == max(StormData_EconSUM$Properties) , ]
-
-# The result is:
-
+# The worst in term of Properties Damaged:
 Evtype_Properties <- as.character(StormData_EconSUM[ StormData_EconSUM$Properties == max(StormData_EconSUM$Properties) , "EVTYPE" ])
 Evtype_PropertiesValue <- round( as.numeric(StormData_EconSUM[ StormData_EconSUM$Properties == max(StormData_EconSUM$Properties) , "Properties"]) , 2)
 
-# The worst event type, in terms of Damaged Crops, is
-
-StormData_EconSUM[ StormData_EconSUM$Crop == max(StormData_EconSUM$Crop) , ]
-
-# The result is:
-
+# The result  in term of Crops Damaged:
 Evtype_Crop <- as.character(StormData_EconSUM[ StormData_EconSUM$Crop == max(StormData_EconSUM$Crop) , "EVTYPE"])
 Evtype_CropValue <- round( as.numeric(StormData_EconSUM[ StormData_EconSUM$Crop == max(StormData_EconSUM$Crop) , "Crop"]) , 2)
+```
+  
+  
+The worst event type, in terms of Total Economical Impact, is **`r Evtype_Monetary`** with a total of **`r Evtype_MonetaryValue`** Billions of dollars in loos.
+  
+  
+The following plot represent the total loss for the Events whith the highest numbers of them. To reduce the number of categories I have merged all the categories with loss below the 1% of the total into a new category called *"Others"*.  
 
+```{r graphEcoTotal}
 # Now we create two plots. One for the total Economic Value and the other will be a double char for the impact in properties and crops.
 
 StormData_EcoGraphTotal <- StormData_EconSUM[,c(1,2)]
-StormData_EcoGraphProp <- StormData_EconSUM[,c(1,3)]
-StormData_EcoGraphCrop <- StormData_EconSUM[,c(1,4)]
-
 ## Graph1 : Total loss for Atmospheric events in billions of dollars.
 # To reduce the categories I will merge all cathegories that represent less that 1% of the total deads.
 
@@ -398,23 +492,25 @@ linch <-  max(strwidth(StormData_EcoGraphTotal$EVTYPE, "inch")+0.4, na.rm = TRUE
 par(mai=c(1.02,linch,0.82,0.42))
 
 graph1 <- barplot(height = StormData_EcoGraphTotal$Monetary, names.arg = StormData_EcoGraphTotal$EVTYPE , horiz=TRUE, main = "Total loss due to Atmospheric Events", xlab = "Loss in Billions of dollars", col=rainbow(14), las=1)
-print(graph1)
-
-
+```
+  
+  
+In terms of categories **`r Evtype_Properties`** was the event in terms of properties damaged with a total of **`r Evtype_PropertiesValue`** billions of dollars in loss. **`r Evtype_Crop`** was the worst event in terms of crop damaged with a total loss of **`r Evtype_CropValue `** billions of dollars.  
+   
+  
+The following plot represent the total loss for the Events whith the highest numbers of them. To reduce the number of categories I have 
+merged all the categories with loss below the 1% of the total into a new category called *"Others"*.  
+  
+  
+```{r graphEcoCombined}
+StormData_EcoGraphProp <- StormData_EconSUM[,c(1,3)]
+StormData_EcoGraphCrop <- StormData_EconSUM[,c(1,4)]
 
 ## Graph2 : Value in billions of dollars for Damaged Properties due to Atmospheric events.
 # To reduce the categories I will merge all cathegories that represent less that 1% of the total deads.
 
 StormData_EcoGraphProp [ StormData_EcoGraphProp$Properties < ( sum( StormData_EcoGraphProp$Properties) * 0.01), "EVTYPE"] <- "Others"
 StormData_EcoGraphProp <- arrange( summarise( group_by( StormData_EcoGraphProp, EVTYPE), Properties = sum(Properties) ) , desc(Properties))
-
-# Generate graph
-linch <-  max(strwidth(StormData_EcoGraphProp$EVTYPE, "inch")+0.4, na.rm = TRUE)
-par(mai=c(1.02,linch,0.82,0.42))
-
-graph2 <- barplot(height = StormData_EcoGraphProp$Properties, names.arg = StormData_EcoGraphProp$EVTYPE , horiz=TRUE, main = "Total Value for damaged properties due to Atmospheric Events", xlab = "Loss in Billions of dollars", col=rainbow(12), las=1)
-
-
 
 ## Graph3 : Value in billions of dollars of Damaged Crops due to Atmospheric events.
 # To reduce the categories I will merge all cathegories that represent less that 1% of the total deads.
@@ -423,11 +519,6 @@ StormData_EcoGraphCrop[ StormData_EcoGraphCrop$Crop < ( sum( StormData_EcoGraphC
 StormData_EcoGraphCrop <- arrange( summarise( group_by( StormData_EcoGraphCrop, EVTYPE), Crop = sum(Crop) ) , desc(Crop))
 
 # Generate graph
-linch <-  max(strwidth(StormData_EcoGraphCrop$EVTYPE, "inch")+0.4, na.rm = TRUE)
-par(mai=c(1.02,linch,0.82,0.42))
-
-graph3 <- barplot(height = StormData_EcoGraphCrop$Crop, names.arg = StormData_EcoGraphCrop$EVTYPE , horiz=TRUE, main = "Total Value for damaged crops due to Atmospheric Events", xlab = "Loss in Billions of dollars", col=rainbow(14), las=1)
-
 
 # Now we plot the last two graphs in a combined panel.
 
@@ -435,5 +526,19 @@ linch <-  max(strwidth(StormData_EcoGraphProp$EVTYPE, "inch")+0.4, na.rm = TRUE)
 par(mfrow=c(2,1), mai=c(1.02,linch,0.82,0.42))
 barplot(height = StormData_EcoGraphProp$Properties, names.arg = StormData_EcoGraphProp$EVTYPE , horiz=TRUE, main = "Total loss in properties due to Atmospheric Events", xlab = "Loss in Billions of dollars", col=rainbow(12), las=1)
 barplot(height = StormData_EcoGraphCrop$Crop, names.arg = StormData_EcoGraphCrop$EVTYPE , horiz=TRUE, main = "Total loss in crops due to Atmospheric Events", xlab = "Loss in Billions of dollars", col=rainbow(14), las=1)
+```
 
+
+# 3. Results 
+    
+
+In term of human diseases the worst event type you can come across is **`r Evtype_Health`**. This type of atmospherical event has caused a total of **`r Evtype_HealthValue`** thousands of registered diseases.  
+  
+  
+In terms of economical impact, **`r Evtype_Monetary`** has cost to the United States a total of **`r Evtype_MonetaryValue`** Billions of dollars of direct loss. Analizing the different categories, **`r Evtype_Properties`** was the worst event for those who own a properties with a total of **`r Evtype_PropertiesValue`** billions of dollars in loss in damaged properties. However **`r Evtype_Crop`** is the event that farmer worries the most with a total of **`r Evtype_CropValue `** billions of dollars of registered loss.  
+  
+  
+# 4. Extras
+
+You will find the R script in my GitHub repostory. You can go there through that (link)[https://github.com/jjperez78/RepData_Assestment2] 
 
